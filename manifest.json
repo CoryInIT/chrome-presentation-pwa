@@ -1,6 +1,6 @@
 {
-    "name": "Device Display PWA",
-    "short_name": "DeviceDisplay",
+    "name": "Chrome Presentation PWA",
+    "short_name": "ChromePresPWA",
     "description": "Displays Google Presentations based on device ID.",
     "start_url": "./",
     "display": "fullscreen",
