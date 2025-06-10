@@ -8,8 +8,7 @@ const urlsToCache = [
     '/images/GIPS Presents 192x192.png',
     '/images/icon-192x192.png',
     '/images/favicon.ico',
-    '/images/GIPS Presents 512x512.png'//,
-    //'/devices.csv' // Cache your CSV file
+    '/images/GIPS Presents 512x512.png'
 ];
 
 self.addEventListener('install', event => {
