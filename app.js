@@ -118,6 +118,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Create and append new iframe
         presentationIframe = document.createElement('iframe');
         presentationIframe.src = currentDeviceUrl;
+        presentationIframe.frameBorder = 0;
+        presentationIframe.mozallowfullscreen = true;
+        presentationIframe.webkitallowfullscreen = true;
         presentationIframe.allowFullscreen = true;
         
         presentationIframe.onload = () => {
