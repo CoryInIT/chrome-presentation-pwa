@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Display PWA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#317EFB"/>
+    <meta name="description" content="A PWA to display Google Presentations based on device ID.">
+</head>
+<body>
+    <div id="loading-screen" class="loading-screen">
+        <p>Identifying device and loading content...</p>
+        <div class="spinner"></div>
+    </div>
+    <div id="presentation-container" class="presentation-container" style="display: none;">
+        <!-- The Google Presentation will be loaded here -->
+    </div>
+
+    <!-- New element for displaying the Device ID -->
+    <div id="device-id-display" class="device-id-display"></div>
+
+    <script src="app.js"></script>
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered! Scope:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.error('Service Worker registration failed:', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent scrolling */
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-screen {
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 10; /* Ensure it's above other content when visible */
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #317EFB;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.presentation-container {
+    width: 100vw; /* Viewport width */
+    height: 100vh; /* Viewport height */
+    position: absolute; /* Take full screen */
+    top: 0;
+    left: 0;
+    z-index: 1; /* Below the loading screen */
+}
+
+.presentation-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none; /* Remove iframe border */
+}
+
+/* New CSS for device ID display */
+.device-id-display {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    color: #cccccc; /* Light gray text */
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-family: 'Inter', sans-serif; /* Using Inter font as per guidelines */
+    font-size: 0.9em;
+    z-index: 5; /* Above presentation, below loading screen */
+    pointer-events: none; /* Allow clicks/touches to pass through to the iframe */
+    display: none; /* Hidden by default, shown by app.js */
+}
