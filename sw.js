@@ -6,10 +6,10 @@ const urlsToCache = [
     '/app.js',
     '/manifest.json',
     '/images/',
-    '/images/GIPS Presents 192x192.png',
+    '/images/GIPSPresents192x192.png',
     '/images/icon-192x192.png',
     '/images/favicon.ico',
-    '/images/GIPS Presents 512x512.png'
+    '/images/GIPSPresents512x512.png'
 ];
 
 self.addEventListener('install', event => {
