@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         presentationIframe = document.createElement('iframe');
         presentationIframe.src = currentDeviceUrl;
         presentationIframe.allowFullscreen = true;
-        presentationIframe.frameBorder = "0"; // To remove default border
+        
         presentationIframe.onload = () => {
             console.log('Presentation loaded.');
             loadingScreen.style.display = 'none';
