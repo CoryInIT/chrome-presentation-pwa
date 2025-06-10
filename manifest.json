@@ -2,13 +2,13 @@
     "name": "Chrome Presentation PWA",
     "short_name": "ChromePresPWA",
     "description": "Displays Google Presentations based on device ID.",
-    "start_url": "./",
+    "start_url": "./chrome-presentation-pwa/",
     "display": "fullscreen",
     "background_color": "#ffffff",
     "theme_color": "#317EFB",
     "icons": [
         {
-            "src": "/chrome-presentation-pwa/images/favicon.ico",
+            "src": "/images/favicon.ico",
             "sizes": "192x192",
             "type": "image/png"
         },
