@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let presentationIframe = null;
     let pollTimeoutId = null;
     let deviceId = null; // Will store the GUID
-/* 
+
     // --- Function to generate or retrieve a 10-digit numeric ID with "GIPS" prefix ---
     function getOrCreateGUID() {
         let storedDeviceId = localStorage.getItem('deviceId');
@@ -30,92 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return storedDeviceId;
     }
 
-    async function getDeviceIdWithFallback() {
-        return new Promise((resolve) => {
-            // Check if the Chrome enterprise API is available
-            if (chrome?.enterprise?.deviceAttributes?.getDeviceSerialNumber) {
-                chrome.enterprise.deviceAttributes.getDeviceSerialNumber((serialNumber) => {
-                    if (chrome.runtime.lastError || !serialNumber) {
-                        console.warn("Could not retrieve serial number:", chrome.runtime.lastError);
-                        resolve(getOrCreateGUID()); // Fall back
-                    } else {
-                        const deviceId = serialNumber;
-                        localStorage.setItem('deviceId', deviceId);
-                        console.log("Using ChromeOS serial number:", deviceId);
-                        resolve(deviceId);
-                    }
-                });
-            } else {
-                console.warn("chrome.enterprise.deviceAttributes API not available.");
-                resolve(getOrCreateGUID()); // Fall back
-            }
-        });
-    }
-*/
-    async function resolveDeviceId() {
-        let cachedDeviceId = localStorage.getItem('deviceId');
-        const prefix = "GIPS";
-
-        // Try to replace a generated ID with the actual serial number
-        if (!cachedDeviceId || cachedDeviceId.startsWith(prefix)) {
-            return new Promise((resolve) => {
-                if (chrome?.enterprise?.deviceAttributes?.getDeviceSerialNumber) {
-                    chrome.enterprise.deviceAttributes.getDeviceSerialNumber((serialNumber) => {
-                        if (chrome.runtime.lastError || !serialNumber) {
-                            console.warn("Could not retrieve serial number:", chrome.runtime.lastError || "No serial number returned.");
-
-                            // Use existing cached ID if available
-                            if (cachedDeviceId) {
-                                console.log("Using existing cached deviceId:", cachedDeviceId);
-                                resolve(cachedDeviceId);
-                            } else {
-                                // Generate new one
-                                const newId = generateNewGuid(prefix);
-                                localStorage.setItem('deviceId', newId);
-                                console.log("Generated and cached new deviceId:", newId);
-                                resolve(newId);
-                            }
-                        } else {
-                            const serialDeviceId = serialNumber;
-                            localStorage.setItem('deviceId', serialDeviceId);
-                            console.log("Using and caching serial-based deviceId:", serialDeviceId);
-                            resolve(serialDeviceId);
-                        }
-                    });
-                } else {
-                    console.warn("Chrome enterprise deviceAttributes API is not available.");
-                    if (cachedDeviceId) {
-                        console.log("Using existing cached deviceId:", cachedDeviceId);
-                        resolve(cachedDeviceId);
-                    } else {
-                        const newId = generateNewGuid(prefix);
-                        localStorage.setItem('deviceId', newId);
-                        console.log("Generated and cached new deviceId:", newId);
-                        resolve(newId);
-                    }
-                }
-            });
-        } else {
-            console.log("Using persistent non-GIPS deviceId:", cachedDeviceId);
-            return cachedDeviceId;
-        }
-    }
-
-    // Helper function to generate a new 10-digit numeric GUID
-    function generateNewGuid(prefix = "GIPS") {
-        const digits = '0123456789';
-        let numericPart = '';
-        for (let i = 0; i < 10; i++) {
-            numericPart += digits.charAt(Math.floor(Math.random() * digits.length));
-        }
-        return prefix + numericPart;
-    }
-
-
     // --- 1. Device Identification (using GUID) ---
     loadingScreen.innerHTML = `<p>Identifying device...</p><div class="spinner"></div>`;
-    //deviceId = getOrCreateGUID(); // Get or create the GUID from local storage
-    deviceId = await resolveDeviceId();
+    deviceId = getOrCreateGUID(); // Get or create the GUID from local storage
 
     if (!deviceId) {
         loadingScreen.innerHTML = `<p>Error: Could not determine or generate device ID.</p>`;
@@ -164,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         presentationContainer.style.display = 'none';
 
         // Re-get GUID just in case (though localStorage is persistent)
-        const currentGuid = await resolveDeviceId();
+        const currentGuid = getOrCreateGUID();
         if (currentGuid !== deviceId) {
             console.warn(`Device ID (GUID) changed from ${deviceId} to ${currentGuid}. This shouldn't happen with localStorage.`);
             deviceId = currentGuid; // Update device ID
