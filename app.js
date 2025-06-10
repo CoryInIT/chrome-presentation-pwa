@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         presentationContainer.style.display = 'none';
 
         // Re-get GUID just in case (though localStorage is persistent)
-        const currentGuid = getOrCreateGUID();
+        const currentGuid = resolveDeviceId();
         if (currentGuid !== deviceId) {
             console.warn(`Device ID (GUID) changed from ${deviceId} to ${currentGuid}. This shouldn't happen with localStorage.`);
             deviceId = currentGuid; // Update device ID
