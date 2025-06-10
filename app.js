@@ -30,10 +30,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         return storedDeviceId;
     }
 
+    async function getDeviceIdWithFallback() {
+        return new Promise((resolve) => {
+            // Check if the Chrome enterprise API is available
+            if (chrome?.enterprise?.deviceAttributes?.getDeviceSerialNumber) {
+                chrome.enterprise.deviceAttributes.getDeviceSerialNumber((serialNumber) => {
+                    if (chrome.runtime.lastError || !serialNumber) {
+                        console.warn("Could not retrieve serial number:", chrome.runtime.lastError);
+                        resolve(getOrCreateGUID()); // Fall back
+                    } else {
+                        const deviceId = serialNumber;
+                        localStorage.setItem('deviceId', deviceId);
+                        console.log("Using ChromeOS serial number:", deviceId);
+                        resolve(deviceId);
+                    }
+                });
+            } else {
+                console.warn("chrome.enterprise.deviceAttributes API not available.");
+                resolve(getOrCreateGUID()); // Fall back
+            }
+        });
+    }
+
+
+
     // --- 1. Device Identification (using GUID) ---
     loadingScreen.innerHTML = `<p>Identifying device...</p><div class="spinner"></div>`;
-    deviceId = getOrCreateGUID(); // Get or create the GUID from local storage
-
+    //deviceId = getOrCreateGUID(); // Get or create the GUID from local storage
+    deviceId = await getDeviceIdWithFallback();
     if (!deviceId) {
         loadingScreen.innerHTML = `<p>Error: Could not determine or generate device ID.</p>`;
         return; // Stop execution if device ID cannot be determined

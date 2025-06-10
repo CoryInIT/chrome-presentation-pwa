@@ -4,6 +4,7 @@
     "description": "Displays Google Presentations based on device ID.",
     "start_url": "/chrome-presentation-pwa/",
     "display": "fullscreen",
+    "permissions": ["enterprise.deviceAttributes"],
     "background_color": "#ffffff",
     "theme_color": "#317EFB",
     "icons": [
