@@ -5,9 +5,9 @@ const urlsToCache = [
     '/style.css',
     '/app.js',
     '/manifest.json',
-    '/images/icon-192x192.png',
-    '/images/icon-512x512.png',
-    '/devices.csv' // Cache your CSV file
+    '/images/GIPS Presents 192x192.png',
+    'images/GIPS Presents 512x512.png'//,
+    //'/devices.csv' // Cache your CSV file
 ];
 
 self.addEventListener('install', event => {
