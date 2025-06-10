@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const loadingScreen = document.getElementById('loading-screen');
     const presentationContainer = document.getElementById('presentation-container');
-    const csvFilePath = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8k5n-dIDnlYvdUllmUJcV4hRypRhvlwUWbCWCa7iYwrx1VkGEbOiS4lKkOnVfJSESuiCOyp848WPu/pub?output=csv'; // Path to your CSV file
+    const csvFilePath = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkKbtwiNOFHMbqsNqOiDJK379_JN9NQC5ESSR6YCRA4szW159p5JT_SJp2DFaMNVei9GIanhlo2nSi/pub?gid=0&single=true&output=csv'; // Path to your CSV file
     const pollInterval = 15 * 60 * 1000; // 15 minutes in milliseconds
 
     let currentDeviceUrl = null;
