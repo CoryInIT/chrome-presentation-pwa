@@ -6,6 +6,7 @@ const urlsToCache = [
     '/app.js',
     '/manifest.json',
     '/images/GIPS Presents 192x192.png',
+    '/images/icon-192x192.png',
     '/images/favicon.ico',
     '/images/GIPS Presents 512x512.png'//,
     //'/devices.csv' // Cache your CSV file
