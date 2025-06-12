@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const loadingScreen = document.getElementById('loading-screen');
     const presentationContainer = document.getElementById('presentation-container');
-    const sheetIdInput = document.getElementById('sheetId');
-    const sheetId = sheetIdInput.value;
+    const urlParams = new URLSearchParams(window.location.search);
+    const sheetIdFromUrl = urlParams.get('sheetID');
+    //const sheetIdInput = document.getElementById('sheetId');
+    //const sheetId = sheetIdInput.value;
     //const csvFilePath = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkKbtwiNOFHMbqsNqOiDJK379_JN9NQC5ESSR6YCRA4szW159p5JT_SJp2DFaMNVei9GIanhlo2nSi/pub?gid=0&single=true&output=csv'; // Path to your CSV file
     const pollInterval = 15 * 60 * 1000; // 15 minutes in milliseconds
     
@@ -10,6 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let presentationIframe = null;
     let pollTimeoutId = null;
     let deviceId = null; // Will store the GUID
+
+
 
     // --- Function to generate or retrieve a 10-digit numeric ID with "GIPS" prefix ---
     function getOrCreateGUID() {
@@ -79,7 +83,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         }
 
-    const csvFilePath = await getCsvUrlFromSheetId(sheetId);
+    // 3. Check if the sheetID was actually found in the URL
+    if (sheetIdFromUrl) {
+        const csvFilePath = getCsvUrlFromSheetId(sheetIdFromUrl);
+
+        if (csvFilePath) {
+            console.log('Successfully generated CSV URL:', csvFilePath);
+            // You can now use the csvFilePath to fetch your data, for example:
+            // fetch(csvFilePath).then(response => ...);
+        } else {
+            // This will run if the ID from the URL is invalid (e.g., contains illegal characters)
+            console.error('The sheetID found in the URL is not valid.');
+        }
+    } else {
+        // This will run if the URL does not contain a '?sheetID=...' parameter
+        console.error("The 'sheetID' parameter was not found in the URL.");
+    }
+    
     // --- 2. CSV Fetching and Parsing ---
     async function fetchCsvData() {
         try {
