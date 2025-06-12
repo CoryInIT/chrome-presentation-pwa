@@ -2,7 +2,7 @@ const CACHE_NAME = 'pwa-device-display-cache-v1';
 const urlsToCache = [
     'index.html',
     'style.css',
-    'app.js',
+    //'app.js',
     'manifest.json',
     'images/GIPSPresents192x192.png',
     'images/icon-192x192.png',
