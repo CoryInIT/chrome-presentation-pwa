@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
      */
     async function fetchCsvData() {
         try {
+            console.log(`Attempting to fetchCsvDatafrom URL: ${csvFilePath}`);
             const response = await fetch(csvFilePath);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -80,6 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
      * Parses CSV text into an object mapping device IDs to presentation URLs.
      */
     function parseCsv(csvText) {
+        console.log(`Attempting to parse csvText.`);
         const lines = csvText.trim().split('\n');
         const headers = lines[0].split(',').map(h => h.trim());
         const data = {};
