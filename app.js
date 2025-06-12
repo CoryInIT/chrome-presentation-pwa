@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!sheetIdFromUrl) {
         console.error("Missing 'sheetID' in URL.");
-        loadingScreen.innerHTML = `<p>Error: 'sheetID' parameter is required in the URL.</p>`;
+        loadingScreen.innerHTML = `<p>Error: 'sheetID' parameter is required in the URL. ${sheetIdFromUrl} </p>`;
         return;
     }
 
