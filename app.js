@@ -3,25 +3,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const presentationContainer = document.getElementById('presentation-container');
     const urlParams = new URLSearchParams(window.location.search);
     const sheetIdFromUrl = urlParams.get('sheetID');
-    //const sheetIdInput = document.getElementById('sheetId');
-    //const sheetId = sheetIdInput.value;
-    //const csvFilePath = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkKbtwiNOFHMbqsNqOiDJK379_JN9NQC5ESSR6YCRA4szW159p5JT_SJp2DFaMNVei9GIanhlo2nSi/pub?gid=0&single=true&output=csv'; // Path to your CSV file
-    const pollInterval = 15 * 60 * 1000; // 15 minutes in milliseconds
-    
+    const pollInterval = 15 * 60 * 1000; // 15 minutes
+
     let currentDeviceUrl = null;
     let presentationIframe = null;
     let pollTimeoutId = null;
-    let deviceId = null; // Will store the GUID
+    let deviceId = null;
+    let csvFilePath = null;
 
-
-
-    // --- Function to generate or retrieve a 10-digit numeric ID with "GIPS" prefix ---
+    /**
+     * Generates or retrieves a 10-digit numeric ID prefixed with "GIPS" and stores it in localStorage.
+     */
     function getOrCreateGUID() {
         let storedDeviceId = localStorage.getItem('deviceId');
         const prefix = "GIPS";
 
         if (!storedDeviceId) {
-            // Generate a random 10-digit numeric string
             const digits = '0123456789';
             let numericPart = '';
             for (let i = 0; i < 10; i++) {
@@ -29,183 +26,168 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             storedDeviceId = prefix + numericPart;
             localStorage.setItem('deviceId', storedDeviceId);
-            console.log('New deviceId (GIPS + Numeric ID) generated and stored:', storedDeviceId);
+            console.log('New deviceId generated and stored:', storedDeviceId);
         } else {
-            console.log('Existing deviceId (GIPS + Numeric ID) retrieved from localStorage:', storedDeviceId);
+            console.log('Retrieved existing deviceId from localStorage:', storedDeviceId);
         }
+
         return storedDeviceId;
     }
 
-    // --- 1. Device Identification (using GUID) ---
-    loadingScreen.innerHTML = `<p>Identifying device...</p><div class="spinner"></div>`;
-    deviceId = getOrCreateGUID(); // Get or create the GUID from local storage
-
-    if (!deviceId) {
-        loadingScreen.innerHTML = `<p>Error: Could not determine or generate device ID.</p>`;
-        return; // Stop execution if device ID cannot be determined
-    }
-
-    console.log(`Identified Device ID (GUID): ${deviceId}`);
-    loadingScreen.innerHTML = `<p>Identified device: ${deviceId}. Loading content...</p><div class="spinner"></div>`;
-
+    /**
+     * Validates and constructs a CSV URL from the given Google Sheet ID.
+     */
     function getCsvUrlFromSheetId(sheetId) {
-            
-            console.log(`Loading SheetId from URL ${sheetId}`);
-            // 1. Sanitize Input: Basic check to ensure the input is a non-empty string.
-            if (!sheetId || typeof sheetId !== 'string' || sheetId.trim() === '') {
-                console.error("Invalid input: Sheet ID must be a non-empty string.");
-                return null;
-            }
+        console.log(`Attempting to load Sheet ID from URL: ${sheetId}`);
 
-            // 2. Sanitize for Security: A regular expression to ensure the ID only contains
-            //    alphanumeric characters, hyphens, and underscores. This prevents injection
-            //    of malicious code or URL manipulation.
-            const sanitizedId = sheetId.trim();
-            const validIdRegex = /^[a-zA-Z0-9-_]+$/;
-
-            if (!validIdRegex.test(sanitizedId)) {
-                console.error("Invalid Sheet ID format. Contains forbidden characters.");
-                return null;
-            }
-
-            // 3. Construct the URL: If the ID is valid, embed it into the URL template.
-            const baseUrl = 'https://docs.google.com/spreadsheets/d/e/';
-            const urlSuffix = '/pub?gid=0&single=true&output=csv';
-            
-            const csvFilePath = `${baseUrl}${sanitizedId}${urlSuffix}`;
-            if(!csvFilePath) {
-                console.log(`CSV File Path Invalid:`);
-                return null;
-            }else {
-                console.log(`Returning csvFilePath: ${csvFilePath}`);
-                return csvFilePath;
-            }
+        if (!sheetId || typeof sheetId !== 'string' || sheetId.trim() === '') {
+            console.error("Invalid input: Sheet ID must be a non-empty string.");
             return null;
         }
 
-    // 3. Check if the sheetID was actually found in the URL
-    if (sheetIdFromUrl) {
-        const csvFilePath = getCsvUrlFromSheetId(sheetIdFromUrl);
+        const sanitizedId = sheetId.trim();
+        const validIdRegex = /^[a-zA-Z0-9-_]+$/;
 
-        if (csvFilePath) {
-            console.log('Successfully generated CSV URL:', csvFilePath);
-            // You can now use the csvFilePath to fetch your data, for example:
-            // fetch(csvFilePath).then(response => ...);
-        } else {
-            // This will run if the ID from the URL is invalid (e.g., contains illegal characters)
-            console.error('The sheetID found in the URL is not valid.');
+        if (!validIdRegex.test(sanitizedId)) {
+            console.error("Invalid Sheet ID format.");
+            return null;
         }
-    } else {
-        // This will run if the URL does not contain a '?sheetID=...' parameter
-        console.error("The 'sheetID' parameter was not found in the URL.");
+
+        const baseUrl = 'https://docs.google.com/spreadsheets/d/e/';
+        const urlSuffix = '/pub?gid=0&single=true&output=csv';
+        return `${baseUrl}${sanitizedId}${urlSuffix}`;
     }
-    
-    // --- 2. CSV Fetching and Parsing ---
+
+    /**
+     * Fetches and parses CSV data into a map of deviceId → presentationUrl.
+     */
     async function fetchCsvData() {
         try {
             const response = await fetch(csvFilePath);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const text = await response.text();
             return parseCsv(text);
         } catch (error) {
             console.error('Error fetching CSV:', error);
-            loadingScreen.innerHTML = `<p>Error fetching device list. Please check network or file path.</p><p>${error.message}</p>`;
+            loadingScreen.innerHTML = `<p>Error fetching device list.</p><p>${error.message}</p>`;
             return null;
         }
     }
 
+    /**
+     * Parses CSV text into an object mapping device IDs to presentation URLs.
+     */
     function parseCsv(csvText) {
         const lines = csvText.trim().split('\n');
-        const headers = lines[0].split(',').map(header => header.trim());
+        const headers = lines[0].split(',').map(h => h.trim());
         const data = {};
+
         for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(',').map(value => value.trim());
+            const values = lines[i].split(',').map(v => v.trim());
             if (values.length === headers.length) {
                 const deviceId = values[headers.indexOf('device_id')];
                 const presentationUrl = values[headers.indexOf('presentation_url')];
                 data[deviceId] = presentationUrl;
             }
         }
+
         return data;
     }
 
-    // --- 3. URL Matching and Display ---
+    /**
+     * Loads and displays the presentation associated with the current device.
+     */
     async function loadPresentation() {
-        // Ensure loading screen is visible while fetching/processing
         loadingScreen.style.display = 'block';
         presentationContainer.style.display = 'none';
 
-        // Re-get GUID just in case (though localStorage is persistent)
         const currentGuid = getOrCreateGUID();
         if (currentGuid !== deviceId) {
-            console.warn(`Device ID (GUID) changed from ${deviceId} to ${currentGuid}. This shouldn't happen with localStorage.`);
-            deviceId = currentGuid; // Update device ID
-            loadingScreen.innerHTML = `<p>Device ID updated to ${deviceId}. Reloading content...</p><div class="spinner"></div>`;
+            console.warn(`Device ID changed from ${deviceId} to ${currentGuid}`);
+            deviceId = currentGuid;
+            loadingScreen.innerHTML = `<p>Device ID updated. Reloading...</p><div class="spinner"></div>`;
         }
 
         const deviceMap = await fetchCsvData();
-        if (!deviceMap) {
-            return; // Error already displayed by fetchCsvData
-        }
+        if (!deviceMap) return;
 
         const newDeviceUrl = deviceMap[deviceId];
-
         if (!newDeviceUrl) {
-            loadingScreen.innerHTML = `<p>Error: No presentation URL found for device ID (GUID) "${deviceId}". Please check your CSV file and ensure this GUID is mapped.</p>`;
+            loadingScreen.innerHTML = `<p>No presentation URL found for device ID: "${deviceId}".</p>`;
             return;
         }
 
         if (newDeviceUrl === currentDeviceUrl && presentationIframe) {
-            console.log('URL has not changed. Keeping current presentation.');
+            console.log('URL unchanged. Keeping current presentation.');
             loadingScreen.style.display = 'none';
             presentationContainer.style.display = 'block';
             return;
         }
 
-        console.log(`Loading new URL for device ${deviceId}: ${newDeviceUrl}`);
         currentDeviceUrl = newDeviceUrl;
+        console.log(`Loading presentation for device ${deviceId}: ${newDeviceUrl}`);
 
-        // Clear existing iframe if it exists
         if (presentationIframe) {
             presentationContainer.removeChild(presentationIframe);
         }
 
-        // Create and append new iframe
         presentationIframe = document.createElement('iframe');
         presentationIframe.src = currentDeviceUrl;
         presentationIframe.frameBorder = 0;
-        presentationIframe.mozallowfullscreen = true;
-        presentationIframe.webkitallowfullscreen = true;
         presentationIframe.allowFullscreen = true;
-        
         presentationIframe.onload = () => {
-            console.log('Presentation loaded.');
             loadingScreen.style.display = 'none';
             presentationContainer.style.display = 'block';
+            console.log('Presentation loaded.');
         };
         presentationIframe.onerror = (e) => {
-            console.error('Error loading iframe:', e);
-            loadingScreen.innerHTML = `<p>Error loading presentation: ${e.message || 'Unknown error'}. Check URL or network.</p>`;
+            console.error('Error loading presentation:', e);
+            loadingScreen.innerHTML = `<p>Error loading presentation.</p>`;
         };
 
         presentationContainer.appendChild(presentationIframe);
     }
 
-    // --- 4. Monitoring URL for Changes ---
+    /**
+     * Polls for updates to the presentation URL at a regular interval.
+     */
     function startPolling() {
-        if (pollTimeoutId) {
-            clearTimeout(pollTimeoutId); // Clear any existing poll
-        }
+        if (pollTimeoutId) clearTimeout(pollTimeoutId);
         pollTimeoutId = setTimeout(async () => {
-            console.log('Polling for URL change...');
-            await loadPresentation(); // Re-load to check for updates
-            startPolling(); // Schedule next poll
+            console.log('Polling for updates...');
+            await loadPresentation();
+            startPolling();
         }, pollInterval);
     }
 
-    // Initial load and start polling
+    // --- INITIALIZATION SEQUENCE ---
+    loadingScreen.innerHTML = `<p>Identifying device...</p><div class="spinner"></div>`;
+    deviceId = getOrCreateGUID();
+
+    if (!deviceId) {
+        loadingScreen.innerHTML = `<p>Error: Could not generate or retrieve device ID.</p>`;
+        return;
+    }
+
+    loadingScreen.innerHTML = `<p>Device identified: ${deviceId}. Loading content...</p><div class="spinner"></div>`;
+
+    if (!sheetIdFromUrl) {
+        console.error("Missing 'sheetID' in URL.");
+        loadingScreen.innerHTML = `<p>Error: 'sheetID' parameter is required in the URL.</p>`;
+        return;
+    }
+
+    csvFilePath = getCsvUrlFromSheetId(sheetIdFromUrl);
+    if (!csvFilePath) {
+        loadingScreen.innerHTML = `<p>Error: Invalid or malformed Sheet ID.</p>`;
+        return;
+    }
+
+    console.log('CSV URL:', csvFilePath);
+
+    // Load the presentation and start polling
     await loadPresentation();
     startPolling();
 });
