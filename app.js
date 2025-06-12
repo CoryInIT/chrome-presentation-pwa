@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const loadingScreen = document.getElementById('loading-screen');
     const presentationContainer = document.getElementById('presentation-container');
-    const csvFilePath = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkKbtwiNOFHMbqsNqOiDJK379_JN9NQC5ESSR6YCRA4szW159p5JT_SJp2DFaMNVei9GIanhlo2nSi/pub?gid=0&single=true&output=csv'; // Path to your CSV file
+    const sheetIdInput = document.getElementById('sheetId');
+    const sheetId = sheetIdInput.value;
+    //const csvFilePath = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTkKbtwiNOFHMbqsNqOiDJK379_JN9NQC5ESSR6YCRA4szW159p5JT_SJp2DFaMNVei9GIanhlo2nSi/pub?gid=0&single=true&output=csv'; // Path to your CSV file
     const pollInterval = 15 * 60 * 1000; // 15 minutes in milliseconds
-
+    
     let currentDeviceUrl = null;
     let presentationIframe = null;
     let pollTimeoutId = null;
@@ -42,7 +44,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log(`Identified Device ID (GUID): ${deviceId}`);
     loadingScreen.innerHTML = `<p>Identified device: ${deviceId}. Loading content...</p><div class="spinner"></div>`;
 
+    function getCsvUrlFromSheetId(sheetId) {
+            // 1. Sanitize Input: Basic check to ensure the input is a non-empty string.
+            if (!sheetId || typeof sheetId !== 'string' || sheetId.trim() === '') {
+                console.error("Invalid input: Sheet ID must be a non-empty string.");
+                return null;
+            }
 
+            // 2. Sanitize for Security: A regular expression to ensure the ID only contains
+            //    alphanumeric characters, hyphens, and underscores. This prevents injection
+            //    of malicious code or URL manipulation.
+            const sanitizedId = sheetId.trim();
+            const validIdRegex = /^[a-zA-Z0-9-_]+$/;
+
+            if (!validIdRegex.test(sanitizedId)) {
+                console.error("Invalid Sheet ID format. Contains forbidden characters.");
+                return null;
+            }
+
+            // 3. Construct the URL: If the ID is valid, embed it into the URL template.
+            const baseUrl = 'https://docs.google.com/spreadsheets/d/e/';
+            const urlSuffix = '/pub?gid=0&single=true&output=csv';
+            
+            const csvFilePath = `${baseUrl}${sanitizedId}${urlSuffix}`;
+            if(!csvFilePath) {
+                console.log('CSV File Path Invalid:');
+                return null;
+            }else {
+                return csvFilePath;
+            }
+            return null;
+        }
+
+    const csvFilePath = getCsvUrlFromSheetId(sheetId);
     // --- 2. CSV Fetching and Parsing ---
     async function fetchCsvData() {
         try {
