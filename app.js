@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadingScreen = document.getElementById('loading-screen');
     const presentationContainer = document.getElementById('presentation-container');
     const urlParams = new URLSearchParams(window.location.search);
-    const sheetIdFromUrl = urlParams.get('sheetID') || '2PACX-1vTkKbtwiNOFHMbqsNqOiDJK379_JN9NQC5ESSR6YCRA4szW159p5JT_SJp2DFaMNVei9GIanhlo2nSi';
+    const sheetIdFromUrl = urlParams.get('sheetID') || localStorage.getItem('sanitizedId');
     const pollInterval = 15 * 60 * 1000; // 15 minutes
 
     let currentDeviceUrl = null;
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Invalid Sheet ID format.");
             return null;
         }
-
+        localStorage.setItem('sanitizedId', sanitizedId);
         const baseUrl = 'https://docs.google.com/spreadsheets/d/e/';
         const urlSuffix = '/pub?gid=0&single=true&output=csv';
         return `${baseUrl}${sanitizedId}${urlSuffix}`;
