@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingScreen.innerHTML = `<p>Identified device: ${deviceId}. Loading content...</p><div class="spinner"></div>`;
 
     function getCsvUrlFromSheetId(sheetId) {
+            
+            console.log(`Loading SheetId from URL ${sheetId}`);
             // 1. Sanitize Input: Basic check to ensure the input is a non-empty string.
             if (!sheetId || typeof sheetId !== 'string' || sheetId.trim() === '') {
                 console.error("Invalid input: Sheet ID must be a non-empty string.");
@@ -68,15 +70,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const csvFilePath = `${baseUrl}${sanitizedId}${urlSuffix}`;
             if(!csvFilePath) {
-                console.log('CSV File Path Invalid:');
+                console.log(`CSV File Path Invalid:`);
                 return null;
             }else {
+                console.log(`Returning csvFilePath: ${csvFilePath}`);
                 return csvFilePath;
             }
             return null;
         }
 
-    const csvFilePath = getCsvUrlFromSheetId(sheetId);
+    const csvFilePath = await getCsvUrlFromSheetId(sheetId);
     // --- 2. CSV Fetching and Parsing ---
     async function fetchCsvData() {
         try {
