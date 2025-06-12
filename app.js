@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadingScreen = document.getElementById('loading-screen');
     const presentationContainer = document.getElementById('presentation-container');
     const urlParams = new URLSearchParams(window.location.search);
-    const sheetIdFromUrl = urlParams.get('sheetID');
+    const sheetIdFromUrl = urlParams.get('sheetID') || '2PACX-1vTkKbtwiNOFHMbqsNqOiDJK379_JN9NQC5ESSR6YCRA4szW159p5JT_SJp2DFaMNVei9GIanhlo2nSi';
     const pollInterval = 15 * 60 * 1000; // 15 minutes
 
     let currentDeviceUrl = null;
