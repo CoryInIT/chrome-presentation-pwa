@@ -139,6 +139,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         presentationIframe.src = currentDeviceUrl;
         presentationIframe.frameBorder = 0;
         presentationIframe.allowFullscreen = true;
+        presentationIframe.allowAutoplay = true;
+        presentationIframe.allowLoop = true;
         presentationIframe.onload = () => {
             loadingScreen.style.display = 'none';
             presentationContainer.style.display = 'block';
