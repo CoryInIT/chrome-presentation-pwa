@@ -123,6 +123,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (newDeviceUrl === currentDeviceUrl && presentationIframe) {
             console.log('URL unchanged. Keeping current presentation.');
+            // This line forces the iframe to reload its current URL
+            presentationIframe.src = currentDeviceUrl;
             loadingScreen.style.display = 'none';
             presentationContainer.style.display = 'block';
             return;
