@@ -120,18 +120,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadingScreen.innerHTML = `<p>No presentation URL found for device ID: "${deviceId}".</p>`;
             return;
         }
-/* This is no longer needed because just having the same URL will not reload the iFrame specifically with the reload() function as cross-site origin would be invalid
-        if (newDeviceUrl === currentDeviceUrl && presentationIframe) {
-            console.log('URL unchanged. Keeping current presentation but reloading presentationIframe .');
-            // This line forces the iframe to reload its current URL
-            presentationIframe.src = currentDeviceUrl;
-            loadingScreen.style.display = 'none';
-            presentationContainer.style.display = 'block';
-            return;
-        }
-*/
-        currentDeviceUrl = newDeviceUrl;
-        console.log(`Loading presentation for device ${deviceId}: ${newDeviceUrl}`);
+
+        currentDeviceUrl = `${newDeviceUrl}&cache_bust=${new Date().getTime()}`;
+        console.log(`Loading presentation for device ${deviceId}: ${currentDeviceUrl}`);
 
         if (presentationIframe) {
             presentationContainer.removeChild(presentationIframe);
